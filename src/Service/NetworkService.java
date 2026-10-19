@@ -8,27 +8,51 @@ import Repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Analizează rețeaua de socializare. Rețeaua este un graf neorientat:
+ * nodurile sunt userii, iar muchiile sunt prieteniile.
+ * O comunitate este o componentă conexă a acestui graf
+ * Graful nu este salvat nicăieri: este reconstruit din
+ * repository-uri din memorie, deci reflectă mereu starea curentă.
+ */
 public class NetworkService {
+    /** Repository-ul userilor. */
     private final UserRepository userRepo;
+    /** Repository-ul prieteniilor. */
     private final FriendshipRepository friendshipRepo;
 
-    private List<User> users;       // poziția în listă = numărul nodului
-    private boolean[][] adj;       // adj[i][j] = true daca i-j sunt prieteno
-    private int[] comp;           // comp[i] = nr comunitate nodu i
+    /** Userii rețelei; poziția în listă este numărul nodului în graf. */
+    private List<User> users;
+    /** Matricea de adiacență: adj[i][j] este true dacă userii de pe pozițiile i și j sunt prieteni. */
+    private boolean[][] adj;
+    /** comp[i] este numărul comunității (1, 2, ...) din care face parte nodul i; 0 înseamnă nevizitat. */
+    private int[] comp;
+    /** Numărul de comunități găsite. */
     private int nrComp;
 
+    /**
+     * @param userRepo       repository-ul userilor
+     * @param friendshipRepo repository-ul prieteniilor
+     */
     public NetworkService(UserRepository userRepo, FriendshipRepository friendshipRepo) {
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
-        build();
     }
 
     //completeaza matricea de adiacenta
+    /**
+     * Reconstruiește graful din starea curentă a repository-urilor și numerotează comunitățile.
+     * pune userii într-o listă (poziția devine numărul nodului);
+     * pentru fiecare prietenie, marchează muchia în matricea de adiacență,
+     * în ambele sensuri; prieteniile cu un user inexistent se ignoră;
+     * pornește un DFS din fiecare nod nevizitat;
+     * fiecare pornire înseamnă o comunitate nouă.
+     */
     private void build() {
         users = new ArrayList<>(userRepo.getAll());
         int n = users.size();
-        adj = new boolean[n][n];
-        comp = new int[n];                 // 0 = nevizitat
+        adj = new boolean[n][n]; //rescriem
+        comp = new int[n];
         nrComp = 0;
 
         for (Friendship f : friendshipRepo.getAll()) {
@@ -49,7 +73,12 @@ public class NetworkService {
         }
     }
 
-    // poziția userului cu id-ul dat în listă (-1 dacă nu există)
+    /**
+     * Găsește poziția unui user în lista de noduri.
+     *
+     * @param id id-ul userului căutat
+     * @return poziția în listă sau -1 dacă userul nu există
+     */
     private int position(int id) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId() == id) return i;
@@ -57,6 +86,12 @@ public class NetworkService {
         return -1;
     }
 
+    /**
+     * Parcurgere în adâncime (DFS) care marchează toți userii accesibili din {@code node} cu numărul comunității. Un nod este vizitat dacă {@code comp[nod] != 0}.
+     *
+     * @param node   nodul de pornire
+     * @param number numărul comunității atribuit nodurilor parcurse
+     */
     private void dfs(int node, int number) {
         comp[node] = number;
         for (int next = 0; next < users.size(); next++) {
@@ -66,12 +101,22 @@ public class NetworkService {
         }
     }
 
+    /**
+     * Calculează numărul de comunități din rețea (numărul de componente conexe).
+     *
+     * @return nrComp = numărul de comunități
+     */
     public int numberOfCommunities() {
         build();
         return nrComp;
     }
 
-    // cea mai mare comunitate + afisare membrii
+    /**
+     * Determină cea mai sociabilă comunitate, adică componenta conexă care conține cel mai lung drum.
+     * Pentru fiecare comunitate se pornește căutarea celui mai lung drum din fiecare membru al ei și se reține maximul.
+     * Comunitatea al cărei maxim este cel mai mare câștigă. La egalitate rămâne prima găsită.
+     * @return membrii comunității câștigătoare; listă goală dacă nu există useri
+     */
     public List<User> mostSociableCommunity() {
         build();
         int bestComp = 0;
@@ -98,7 +143,19 @@ public class NetworkService {
         return result;
     }
 
-    // DFS cu bactracking
+    /**
+     * Calculează lungimea celui mai lung drum elementar (fără noduri repetate)
+     * care pornește din {@code node}. Lungimea se măsoară în număr de muchii.
+     * Algoritm: DFS cu backtracking. Nodul curent se marchează vizitat,
+     * se încearcă toți vecinii nevizitați (lungime = 1 + drumul din vecin),
+     * apoi marcajul se anulează, pentru ca nodul să poată apărea
+     * în alte drumuri. Complexitate exponențială în cazul cel mai rău
+     * (problema este NP-dificilă), dar acceptabilă pentru rețele mici.
+     *
+     * @param node    nodul de pornire
+     * @param visited nodurile aflate pe drumul curent
+     * @return lungimea celui mai lung drum care pornește din {@code node}
+     */
     private int longestPath(int node, boolean[] visited) {
         visited[node] = true;
         int best = 0;
