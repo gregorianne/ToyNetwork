@@ -5,25 +5,19 @@ import Domain.User;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import Domain.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 public class FriendshipRepository {
 
     //Lista de utilizatori este un dictionar cu cheia = Id-ul utilizatorului pentru acces ultra rapid
     //HashMap este neordonat dar rapid
-    private Map<Integer, Friendship> friendships = new HashMap<>();
+    private TreeMap<Integer, Friendship> friendships = new TreeMap<>();
 
     //final inseamna ca nu se mai poate modifica pe parcurs
     private final String FILENAME;
@@ -47,6 +41,26 @@ public class FriendshipRepository {
 
     public Friendship findById(int id){
         return friendships.get(id);
+    }
+
+    public boolean preexistent(int i1, int i2){
+        for(Friendship f: friendships.values()){
+            if(f.getId_user1()==i1 && f.getId_user2()==i2){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int LastKey(){
+        if(!friendships.isEmpty()){
+            return friendships.lastKey();
+        }
+        return -1;
+    }
+
+    public Collection<Friendship> getAll(){
+        return friendships.values();
     }
 
     //stergere/scriere in fisier

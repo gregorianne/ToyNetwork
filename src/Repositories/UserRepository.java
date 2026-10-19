@@ -1,20 +1,19 @@
 package Repositories;
 
 import Domain.*;
+import Service.UserService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //Tine lista de useri, salevaza in fisier, adauga, modifica
 public class UserRepository {
     //Lista de utilizatori este un dictionar cu cheia = Id-ul utilizatorului pentru acces ultra rapid
     //HashMap este neordonat dar rapid
-    private Map<Integer, User> users = new HashMap<>();
+    //Schimbat cu TreeMap, care este ordonat
+    private TreeMap<Integer, User> users = new TreeMap<>();
 
     //final inseamna ca nu se mai poate modifica pe parcurs
     private final String FILENAME;
@@ -36,8 +35,31 @@ public class UserRepository {
         update_to_file();
     }
 
+    //note: transmoterea e prin referinta mereu, defaultul la Java
     public User findById(int id){
         return users.get(id);
+    }
+
+    public String findByUsername(String username){
+        for(User u: users.values()){
+            if(u.getUsername().equals(username)){
+                return username;
+            }
+        }
+        return "none found";
+    }
+
+    public boolean existsUsername(String username){
+        for(User u: users.values()){
+            if(u.getUsername().equals(username)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Collection<User> getAll(){
+        return users.values();
     }
 
     //stergere/scriere in fisier
