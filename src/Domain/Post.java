@@ -1,5 +1,9 @@
 package Domain;
 
+
+/**
+ * Forma unei postari
+ */
 public class Post extends Entity{
     private String content;
     private int id_author;

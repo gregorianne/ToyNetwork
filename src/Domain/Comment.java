@@ -1,5 +1,8 @@
 package Domain;
 
+/**
+ * Forma unui comentariu
+ */
 public class Comment extends Entity{
     private String content;
     private int id_author;

@@ -17,6 +17,7 @@ Adunare, Scadere etc.: cate o operatie.
 
 Sabloane:
 
+-Single Responsability
 -Factory: ExpressionFactory.createExpression() primește un Operation și creează instanta potrivită. Cine îl cheamă nu face new Adunare direct.
 -Singleton: ExpressionFactory are o singură instanță (constructor privat + getInstance()), fiindcă nu are stare și nu are rost să existe mai multe (date care se schimbă).
 -Template Method: execute() din ComplexExpression definește scheletul (ciclul de combinare de la stânga la dreapta), iar executeOneOperation e pasul pe care îl completează fiecare copil.

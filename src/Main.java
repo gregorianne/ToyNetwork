@@ -9,6 +9,9 @@ import VE.RepositoryException;
 import VE.UserValidator;
 import VE.ValidationException;
 
+/**
+ * Instantierea diverselor module si rularea propriu zisa
+ */
 public class Main {
     public static void main(String[] args) {
         // un singur repository per tip, partajat de toate service-urile

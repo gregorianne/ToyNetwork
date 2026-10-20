@@ -10,6 +10,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 //Tine lista de useri, salevaza in fisier, adauga, modifica
+/**
+ * Memoreaza utilizatorii (după id, intr-un dictionar ordonat) și sincronizează cu un fișier CSV dupa fiecare operatie CRUD.
+ */
 public class UserRepository {
     //Lista de utilizatori este un dictionar cu cheia = Id-ul utilizatorului pentru acces ultra rapid
     //HashMap este neordonat dar rapid
