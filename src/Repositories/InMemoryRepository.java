@@ -56,7 +56,7 @@ public class InMemoryRepository<ID, Elem extends Entity<ID>>
      * @return valorile entitatilor de la fiecare cheie
      */
     @Override
-    public Iterable<Elem> get_All() {
+    public Iterable<Elem> findAll() {
         return entities.values();
     }
 

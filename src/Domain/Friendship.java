@@ -1,6 +1,7 @@
 package Domain;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Reprezintă o relație de prietenie între doi utilizatori ai rețelei.
@@ -111,5 +112,18 @@ public class Friendship extends Entity<Tuple<Integer, Integer>> {
     public String toString() {
         return getIdUser1() + ";" + getIdUser2() + ";"
                 + dateOfFriendship.format(FORMAT);
+    }
+
+    /** Format pentru afișare în UI, ex: 2 Mar la ora 13:36 */
+    public static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("d MMM 'la ora' HH:mm", Locale.ENGLISH);
+
+    /**
+     * Returnează data prieteniei într-un format ușor de citit.
+     *
+     * @return text de forma "2 Mar la ora 13:36"
+     */
+    public String getFormattedDate() {
+        return dateOfFriendship.format(DISPLAY_FORMAT);
     }
 }

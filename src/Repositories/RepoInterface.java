@@ -22,7 +22,7 @@ public interface RepoInterface<ID, Elem extends Entity<ID>> {
     /**
      @return all entities
      */
-    Iterable<Elem> get_All();
+    Iterable<Elem> findAll();
 
     /**
      * @param entity entity must be not null

@@ -2,9 +2,9 @@ package Service;
 import Domain.Friendship;
 import Domain.Tuple;
 import Domain.User;
-import Repositories.InFile.AbstractFileRepository;
 import Repositories.InFile.FriendshipFileRepository;
 import Repositories.InFile.UserFileRepository;
+import Repositories.RepoInterface;
 import VE.*;
 
 import java.util.ArrayList;
@@ -16,17 +16,17 @@ import java.util.List;
  */
 public class UserService {
     /** Repository-ul userilor. */
-    private final UserFileRepository user_repo;
+    private final RepoInterface<Integer, User> userRepo;
     /** Repository-ul prieteniilor pentru a sterge si prietenii. */
-    private final FriendshipFileRepository friendshipRepo;
+    private final RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo;
 
     /**
-     * @param user_repo repository-ul userilor
+     * @param userRepo repository-ul userilor
      * @param friendshipRepo repository-ul prieteniilor
      */
-    public UserService(UserFileRepository user_repo,
-                       FriendshipFileRepository friendshipRepo) {
-        this.user_repo = user_repo;
+    public UserService(RepoInterface<Integer, User> userRepo,
+                           RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo) {
+        this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
 
@@ -38,7 +38,7 @@ public class UserService {
      */
     private int nextId() {
         int max = 1000;
-        for (User u : user_repo.get_All()) {
+        for (User u : userRepo.findAll()) {
             if (u.getId() > max) max = u.getId();
         }
         return max + 1;
@@ -56,18 +56,18 @@ public class UserService {
      * @throws ValidationException dacă username-ul există deja sau dacă datele sunt invalide
      */
     public void addUser(String username, String email, String first_name, String last_name) {
-        for (User existing : user_repo.get_All()) {
+        for (User existing : userRepo.findAll()) {
             if (existing.getUsername().equals(username))
                 throw new ValidationException("Username-ul este deja folosit!");
         }
         User u = new User(username, email, first_name, last_name);
         //# validarea se face direct in in-memory repository
         u.setId(nextId());
-        user_repo.save(u);
+        userRepo.save(u);
     }
 
     public Iterable<User> getAll() {
-        return user_repo.get_All();
+        return userRepo.findAll();
     }
 
     /**
@@ -77,18 +77,18 @@ public class UserService {
      * @throws ValidationException dacă nu există niciun user cu acest id
      */
     public void deleteUser(int id) {
-        if (user_repo.findOne(id) == null) {
+        if (userRepo.findOne(id) == null) {
             throw new ValidationException("Userul căutat nu există!");
         }
         // întâi le strângem, apoi le ștergem (nu ștergem în timpul iterării)
         List<Tuple<Integer, Integer>> prietenii_de_sters = new ArrayList<>();
-        for (Friendship f : friendshipRepo.get_All()) {
+        for (Friendship f : friendshipRepo.findAll()) {
             if (f.getIdUser1() == id || f.getIdUser2() == id)
                 prietenii_de_sters.add(f.getId()); // PERECHE AICI, nu doar un id
         }
         for (Tuple<Integer, Integer> cheie : prietenii_de_sters) {
             friendshipRepo.delete(cheie);
         }
-        user_repo.delete(id);
+        userRepo.delete(id);
     }
 }

@@ -1,6 +1,6 @@
 package Factory;
 
-public enum RepoType {
+public enum RepositoryType {
     MEMORY,
     FILE,
     DATABASE

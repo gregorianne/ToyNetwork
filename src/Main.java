@@ -1,7 +1,11 @@
+import Domain.Friendship;
+import Domain.Tuple;
 import Domain.User;
+import Factory.RepositoryFactory;
 import Repositories.InFile.AbstractFileRepository;
 import Repositories.InFile.FriendshipFileRepository;
 import Repositories.InFile.UserFileRepository;
+import Repositories.RepoInterface;
 import Service.FriendshipService;
 import Service.NetworkService;
 import Service.UserService;
@@ -15,17 +19,22 @@ public class Main {
     public static void main(String[] args) {
         // un singur repository per tip, partajat de toate service-urile
         try {
-            UserFileRepository userRepo = new UserFileRepository(new UserValidator(),"src/users.csv");
-            FriendshipFileRepository friendRepo = new FriendshipFileRepository(new FriendshipValidator(),"src/friendships.csv");
+            RepositoryFactory factory = new RepositoryFactory();
 
-            UserService userService = new UserService(userRepo, friendRepo);
-            FriendshipService friendshipService = new FriendshipService(friendRepo, userRepo);
-            NetworkService networkService = new NetworkService(userRepo, friendRepo);
+            RepoInterface<Integer, User> userRepo = factory.createUserRepository(new UserValidator());
+            RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo =
+                    factory.createFriendshipRepository(new FriendshipValidator());
+
+            UserService userService = new UserService(userRepo, friendshipRepo);
+            FriendshipService friendshipService = new FriendshipService(friendshipRepo, userRepo);
+            NetworkService networkService = new NetworkService(userRepo, friendshipRepo);
 
             new UI(userService, friendshipService, networkService).run();
 
-        } catch (RepositoryException | ValidationException | NumberFormatException e) {
-            System.out.println(e);
+        } catch (RepositoryException e){
+            System.out.println("Repo Eroare! " + e);
+        } catch (ValidationException e) {
+            System.out.println("Valid Eroare! " + e);
         }
     }
 }

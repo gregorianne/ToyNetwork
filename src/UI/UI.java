@@ -1,5 +1,6 @@
 package UI;
 
+import Domain.Friendship;
 import Domain.User;
 import Service.FriendshipService;
 import Service.NetworkService;
@@ -40,7 +41,8 @@ public class UI {
       */
     private void printMenu() {
         System.out.println("\n===== NiceBook =====");
-        System.out.println("a. Afiseaza useri");
+        System.out.println("u. Afiseaza useri");
+        System.out.println("p. Afiseaza prietenii");
         System.out.println("1. Adaugă user");
         System.out.println("2. Șterge user");
         System.out.println("3. Adaugă prietenie");
@@ -67,15 +69,25 @@ public class UI {
      *
      * @param str eticheta afișată înaintea câmpului
      * @return numărul introdus
-     * @throws NumberFormatException dacă textul introdus nu este un număr întreg
+     * @throws  ValidationException dacă textul introdus nu este un număr întreg
      */
     private int readInt(String str) {
-        return Integer.parseInt(readString(str));
+        try {
+            return Integer.parseInt(readString(str));
+        } catch (NumberFormatException e) {
+            throw new ValidationException("Nu se poate converti in integer!");
+        }
     }
 
     public void showUsers(){
         for(User u: userService.getAll()){
             System.out.println(u.toString());
+        }
+    }
+
+    public void showFriendships(){
+        for (String line : friendshipService.getFriendshipsDisplay()) {
+            System.out.println(line);
         }
     }
 
@@ -91,7 +103,8 @@ public class UI {
 
             try {
                 switch (option) {
-                    case "a" -> showUsers();
+                    case "u" -> showUsers();
+                    case "p" -> showFriendships();
                     case "1" -> addUser();
                     case "2" -> userService.deleteUser(readInt("Id user"));
                     case "3" -> friendshipService.addFriendship(

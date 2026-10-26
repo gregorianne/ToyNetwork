@@ -93,7 +93,7 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
      */
     private void writeToFile() {
         try (BufferedWriter scriitor = new BufferedWriter(new FileWriter(FILENAME))) {
-            for (Elem entity : get_All()) { //! se parcurge fiecare entitate
+            for (Elem entity : findAll()) { //! se parcurge fiecare entitate
                 scriitor.write(
                         Entity_to_String(entity) //! conversie inapoi in string dupa specificatiile fiecarei entitati
                 );

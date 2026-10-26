@@ -1,13 +1,12 @@
 package Service;
 
 import Domain.Friendship;
+import Domain.Tuple;
 import Domain.User;
 import Repositories.InFile.FriendshipFileRepository;
 import Repositories.InFile.UserFileRepository;
-import Domain.Friendship;
-import Domain.Tuple;
-import Domain.User;
-import Repositories.InFile.AbstractFileRepository;
+import Repositories.RepoInterface;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +19,9 @@ import java.util.List;
  */
 public class NetworkService {
     /** Repository-ul userilor. */
-    private final UserFileRepository userRepo;
+    private final RepoInterface<Integer, User> userRepo;
     /** Repository-ul prieteniilor. */
-    private final FriendshipFileRepository friendshipRepo;
+    private final RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo;
 
     /** Userii rețelei; poziția în listă este numărul nodului în graf. */
     private List<User> users;
@@ -37,7 +36,7 @@ public class NetworkService {
      * @param userRepo       repository-ul userilor
      * @param friendshipRepo repository-ul prieteniilor
      */
-    public NetworkService(UserFileRepository userRepo, FriendshipFileRepository friendshipRepo) {
+    public NetworkService(RepoInterface<Integer, User> userRepo, RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo) {
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
@@ -53,7 +52,7 @@ public class NetworkService {
      */
     private void build() {
         users = new ArrayList<>();
-        for (User u : userRepo.get_All()) {
+        for (User u : userRepo.findAll()) {
             users.add(u);
         }
         int n = users.size();
@@ -62,7 +61,7 @@ public class NetworkService {
         comp = new int[n];
         nrComp = 0;
 
-        for (Friendship f : friendshipRepo.get_All()) {
+        for (Friendship f : friendshipRepo.findAll()) {
             int a = position(f.getIdUser1());
             int b = position(f.getIdUser2());
             if (a != -1 && b != -1) {
