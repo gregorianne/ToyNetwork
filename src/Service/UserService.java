@@ -1,11 +1,10 @@
 package Service;
 import Domain.User;
-import Repositories.FriendshipRepository;
-import Repositories.UserRepository;
+import Repositories.InFile.FriendshipFileRepository;
+import Repositories.InFile.UserFileRepository;
 import VE.*;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * operatii pentru useri: adăugare și ștergere.
@@ -13,18 +12,18 @@ import java.util.List;
  */
 public class UserService {
     /** Repository-ul userilor. */
-    private final UserRepository repo;
+    private final UserFileRepository repo;
     /** Strategia de validare a unui user. */
     private final Validator<User> validator;
     /** Repository-ul prieteniilor pentru a sterge si prietenii. */
-    private final FriendshipRepository friendshipRepo;
+    private final FriendshipFileRepository friendshipRepo;
 
     /**
      * @param repo      repository-ul userilor
      * @param friendshipRepo repository-ul prieteniilor
      * @param validator strategia de validare a userilor
      */
-    public UserService(UserRepository repo, FriendshipRepository friendshipRepo,
+    public UserService(UserFileRepository repo, FriendshipFileRepository friendshipRepo,
                        Validator<User> validator) {
         this.repo = repo;
         this.friendshipRepo = friendshipRepo;

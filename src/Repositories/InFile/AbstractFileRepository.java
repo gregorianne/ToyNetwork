@@ -1,7 +1,7 @@
 package Repositories.InFile;
 
 import java.io.IOException;
-import java.util.*;
+
 import Domain.*;
 import Repositories.InMemoryRepository;
 import VE.*;
@@ -14,125 +14,138 @@ import java.io.FileWriter;
 
 /**
  * Repository care memoreaza datele in memorie si in fisier
- * Template Method: citirea si scrierea in fisier sunt scrise aici, o singura data, iar subclasele doar specifica cum se converteste informatia din fisier
+ * Template Method: citirea si scrierea in fisier sunt scrise aici, o singură data, iar subclasele doar specifica felul in care se converteste informatia din fisier
  *
  * @param <ID> - type E must have an attribute of type ID
- * @param <E>  - type of entities saved in repository
+ * @param <Elem>  - type of entities saved in repository
  */
-public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends InMemoryRepository<ID, E> {
+public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
+        extends InMemoryRepository<ID, Elem> {
 
-    private final String fileName;
+    private final String FILENAME;
 
     /**
-     * creates the repository and loads the entities from the file
+     * Initializeaza repo cu validatorul specific, citeste datele din fisier
      *
-     * @param validator - the validation strategy for the entities
-     * @param fileName  - the path of the text file
+     * @param validator - validare specifica pentru entitatile intializate in antet cu Elem
+     * @param fileName  - path pentru fisier
      */
-    public AbstractFileRepository(Validator<E> validator, String fileName) {
-        super(validator);
-        this.fileName = fileName;
+    public AbstractFileRepository(Validator<Elem> validator, String fileName) {
+        super(validator); //! se duce la validator sa vada daca este vreunul de tip Elem
+        this.FILENAME = fileName;
         loadData();
     }
 
-    /**
-     * creates an entity from a line of the file
-     *
-     * @param line - a line of the file
-     * @return the entity described by the line
-     */
-    protected abstract E extractEntity(String line);
+    //# FUNCTII DE CONVERSIE IN SI DIN STRING
 
     /**
-     * converts an entity into a line of the file
+     * Creaza o entitate de tip elem dintr un sir de caractere, metoda care poate fi implementata explicit in repository specific
+     *
+     * @param line - sir de caractere din fisier
+     * @return Entitate cu valorile din line
+     */
+    protected abstract Elem String_to_Entity(String line);
+
+    /**
+     * Converteste o entitate intr un sir de caractere care poate fi scris in fisier
      *
      * @param entity - the entity to be converted
      * @return the line of text that describes the entity
      */
-    protected abstract String createEntityAsString(E entity);
+    protected abstract String Entity_to_String(Elem entity);
 
+
+    //# CITIRE / SCRIERE IN FISIER
     /**
-     * reads all the lines of the file and saves the entities in memory;
-     * if the file does not exist, the repository starts empty
+     * Citeste toate liniile din fisier si salveaza entitatile valide in memorie
+     * Daca fisierul nu exista, repo-ul va incepe aplicatia gol
      *
-     * @throws RuntimeException if the file cannot be read
+     * @throws RepositoryException daca fisierul nu poate fi citit / exista linii invalide
+     * @throws ValidationException daca intr-una din linii sunt date invalide + specifica linia si continua executia
+     * @throws FileNotFoundException daca nu exista fisierul si incepe executia fara date in memorie
      */
     private void loadData() {
-        // decorator: BufferedReader (buffer + readLine) peste FileReader (primitiv)
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+        int linie_curenta = 0;
+        try (BufferedReader cititor = new BufferedReader(new FileReader(FILENAME))) {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = cititor.readLine()) != null) {
+                linie_curenta++;
                 if (line.isBlank())
                     continue;
-                E entity = extractEntity(line);
-                super.save(entity);   // super, nu this: nu rescriem fisierul in timp ce il citim
+                try {
+                    super.save(String_to_Entity(line));
+                } catch (RepositoryException | ValidationException e) {
+                    System.out.println("Linia " + linie_curenta + " invalida si ignorata: " + e.getMessage());
+                }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Fisierul " + fileName + " nu exista; repository gol.");
+            System.out.println("Fisierul " + FILENAME + " nu exista sau nu avem acces la el; repository gol.");
         } catch (IOException e) {
-            throw new RuntimeException("Eroare la citirea fisierului " + fileName, e);
+            //! se respecta impachetarea exceptiilor in Repo Exception
+            throw new RepositoryException("Eroare la citirea fisierului " + FILENAME, e);
         }
     }
 
     /**
-     * rewrites the whole file with the entities currently in memory
+     * Rescrie intregul fisier cu ce se afla in memorie
      *
-     * @throws RuntimeException if the file cannot be written
+     * @throws RepositoryException daca nu se poate scrie
      */
     private void writeToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            for (E entity : get_All()) {
-                writer.write(createEntityAsString(entity));
-                writer.newLine();
+        try (BufferedWriter scriitor = new BufferedWriter(new FileWriter(FILENAME))) {
+            for (Elem entity : get_All()) { //! se parcurge fiecare entitate
+                scriitor.write(
+                        Entity_to_String(entity) //! conversie inapoi in string dupa specificatiile fiecarei entitati
+                );
+                scriitor.newLine();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Eroare la scrierea fisierului " + fileName, e);
+            throw new RepositoryException("Eroare la scrierea fisierului " + FILENAME, e);
         }
     }
 
+    //# ACTUALIZAREA DATELOR IN MEMORIE - CRUD
+    //# implementeaza ceea ce este deja in InMemoryRepository si salveaza modificarile si in fisier
     /**
-     * saves the entity in memory and, if it was saved, rewrites the file
-     *
-     * @param entity entity must be not null
-     * @return null - if the given entity is saved
-     * otherwise returns the entity (id already exists)
-     * @throws ValidationException if the entity is not valid
-     * @throws IllegalArgumentException                   if the given entity is null.
+     * Adauga in dictionarul intern o entitate valida si o salveaza in fisier
+     * @param entity Entitatea nu poate fi nula
+     * @return null daca s-a efectuat cu succes
+     * @throws RepositoryException daca entitatea e nula
+     * @throws VE.ValidationException daca entitatea nu e valida
      */
     @Override
-    public E save(E entity) {
-        E result = super.save(entity);
+    public Elem save(Elem entity) {
+        Elem result = super.save(entity); //# super se duce la parinte - InMemoryRepository
         if (result == null)
             writeToFile();
         return result;
     }
 
     /**
-     * removes the entity from memory and, if it existed, rewrites the file
-     *
-     * @param id id must be not null
-     * @return the removed entity or null if there is no entity with the given id
+     * Sterge din memorie o entitate si rescrie fisierul cu noile date din memorie
+     * @param id - cheia pentru care stergem valoarea asociata
+     * @throws RepositoryException daca id e null
+     * @return "the previous value associated with key, or {@code null} if there was no mapping for key."
      */
     @Override
-    public E delete(ID id) {
-        E result = super.delete(id);
+    public Elem delete(ID id) {
+        Elem result = super.delete(id);
         if (result != null)
             writeToFile();
         return result;
     }
 
     /**
-     * updates the entity in memory and, if it was updated, rewrites the file
-     *
+     * Actualizeaza valoarea unei entitati cu a alteia primite ca parametru
+     * Daca se efectueaza cu succes, rescrie fisierul
      * @param entity entity must not be null
-     * @return null - if the entity is updated,
-     * otherwise returns the entity - (e.g id does not exist).
-     * @throws IllegalArgumentException                   if the given entity is null.
-     * @throws ValidationException if the entity is not valid.
+     * @throws RepositoryException daca entitatea e nula
+     * @throws VE.ValidationException daca entitatea noua primita nu e valida
+     * @return null daca s-a efectuat cu succes sau enitatea din parametru daca nu exista o inregistrare la ID-ul din entitiy
      */
     @Override
-    public E update(E entity) {
-        E result = super.update(entity);
+    public Elem update(Elem entity) {
+        Elem result = super.update(entity);
         if (result == null)
             writeToFile();
         return result;

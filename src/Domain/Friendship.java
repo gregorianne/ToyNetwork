@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
  * @author Andra
  * @version 1.0
  */
-public class Friendship extends Entity<Tuple<User,User>> {
+public class Friendship extends Entity<Tuple<Integer, Integer>> {
     //# Inainte de Tuple si Entity cu identificator generic
 
 //*    /** Id-ul primului utilizator din prietenie. */
@@ -39,43 +39,52 @@ public class Friendship extends Entity<Tuple<User,User>> {
 
     /**
      * Creează o prietenie între doi utilizatori.
+     * Id-ul prieteniei este perechea de id-uri ale userilor, normalizată
+     * (id-ul mai mic primul).
      *
-     * @param u1               primul utilizator
-     * @param u2               al doilea utilizator
+     * @param u1               id-ul primului utilizator
+     * @param u2               id-ul celui de-al doilea utilizator
      * @param dateOfFriendship data și ora prieteniei
      */
-    public Friendship(User u1, User u2, LocalDateTime dateOfFriendship) {
+    public Friendship(Integer u1, Integer u2, LocalDateTime dateOfFriendship) {
         setId(normalize(u1, u2));
         this.dateOfFriendship = dateOfFriendship;
     }
 
     /** Returnează perechea ordonată după id, ca (A,B) și (B,A) să fie aceeași cheie.
+     * @param u1 id-ul primului utilizator
+     * @param u2 id-ul celui de-al doilea utilizator
      * @return Tuple de u1,u2 ordonati dupa id
      * */
-    public static Tuple<User, User> normalize(User u1, User u2) {
-        return u1.getId() <= u2.getId()
+    public static Tuple<Integer, Integer> normalize(Integer u1, Integer u2) {
+        return u1 <= u2
                 ? new Tuple<>(u1, u2)
                 : new Tuple<>(u2, u1);
     }
 
-    /** Creează o prietenie cu data curentă. */
-    public Friendship(User u1, User u2) {
+    /**
+     * Creează o prietenie cu data curentă.
+     *
+     * @param u1 id-ul primului utilizator
+     * @param u2 id-ul celui de-al doilea utilizator
+     */
+    public Friendship(Integer u1, Integer u2) {
         this(u1, u2, LocalDateTime.now());
     }
 
     /**
-     * Returneaza primul prieten
-     * @return User primul prieten
+     * Returneaza id-ul primului prieten (cel mai mic id din pereche)
+     * @return Integer id-ul primului prieten
      */
-    public User getUser1() {
-        return getId().getFirst();   // adaptează la metodele din Tuple-ul tău
+    public Integer getIdUser1() {
+        return getId().getFirst();
     }
 
     /**
-     * Returneaza al doilea prieten
-     * @return User al doilea prieten
+     * Returneaza id-ul celui de-al doilea prieten (cel mai mare id din pereche)
+     * @return Integer id-ul celui de-al doilea prieten
      */
-    public User getUser2() {
+    public Integer getIdUser2() {
         return getId().getSecond();
     }
 
@@ -100,7 +109,7 @@ public class Friendship extends Entity<Tuple<User,User>> {
      */
     @Override
     public String toString() {
-        return getUser1().getId() + ";" + getUser2().getId() + ";"
+        return getIdUser1() + ";" + getIdUser2() + ";"
                 + dateOfFriendship.format(FORMAT);
     }
 }
