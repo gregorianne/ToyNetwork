@@ -1,6 +1,9 @@
 package VE;
 
 import Domain.Friendship;
+
+import java.util.Objects;
+
 /**
  * Validează forma datelor unei Prietenii
  */
@@ -13,9 +16,9 @@ public class FriendshipValidator implements Validator<Friendship> {
      */
     @Override
     public void validate(Friendship f) {
-        if (f.getId_user1() == f.getId_user2())
+        if (Objects.equals(f.getIdUser1(), f.getIdUser2()))
             throw new ValidationException("Un utilizator nu poate fi prieten cu el însuși");
-        if(f.getId_user1()<=1000 || f.getId_user2()<=1000){
+        if(f.getIdUser1()<=1000 || f.getIdUser2()<=1000){
             throw new ValidationException("Un id este invalid!");
         }
     }

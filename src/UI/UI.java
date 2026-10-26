@@ -127,12 +127,11 @@ public class UI {
      * @throws NumberFormatException dacă id-ul nu este un număr
      */
     private void addUser() {
-        int id = readInt("Id");
         String username = readString("Username");
         String email = readString("Email");
         String firstName = readString("Prenume");
         String lastName = readString("Nume");
-        userService.addUser(id, username, email, firstName, lastName);
+        userService.addUser(username, email, firstName, lastName);
     }
 
     /** Afișează username-urile membrilor celei mai sociabile comunități. */
