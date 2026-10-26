@@ -1,4 +1,3 @@
-id;username;email;first_name;last_name
 1001;booker12;books_and_tea@proton.com;Rachel;Booker
 1002;grey07;greyzanatomy0707@yahoo.com;Laura;Grey
 1003;johnson81;johnsonandjohnson@yahoo.com;Craig;Johnson
@@ -6,7 +5,7 @@ id;username;email;first_name;last_name
 1005;smith79;jamieee@lolipops.com;Jamie;Smith
 1006;leclerc466;charlieleclerc@officialf1@yahoo.com;Charles;Leclerc
 1007;lewizzard_hamilton;lewis_ham647@proton.com;Lewis;Hamilton
-1008;johnnnlaurens;broadway_junkie28229;John;Laurens
+1008;johnnnlaurens;broadway@junkie28229;John;Laurens
 1009;american_beauty;lanalana29@yahoo.com;Lana;DelRay
 1010;katalin2k17;katalin_talent@bussines.com;Kaithlin;Talented
 1011;joshdunnnn;drummerboy89@proton.mail;Joshua;Dun

@@ -75,7 +75,7 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
                 try {
                     super.save(String_to_Entity(line));
                 } catch (RepositoryException | ValidationException e) {
-                    System.out.println("Linia " + linie_curenta + " invalida si ignorata: " + e.getMessage());
+                    System.out.println(FILENAME + ": Linia " + linie_curenta + " invalida si ignorata: " + e.getMessage());
                 }
             }
         } catch (FileNotFoundException e) {
