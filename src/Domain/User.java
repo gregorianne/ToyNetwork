@@ -2,7 +2,7 @@ package Domain;
 /**
  * Reprezintă un utilizator al rețelei de socializare.
  */
-public class User extends Entity{
+public class User extends Entity<Integer> {
     /** Numele de utilizator (unic în rețea). */
     private String username;
     /** Adresa de email. */
@@ -15,14 +15,14 @@ public class User extends Entity{
     /**
      * Initializeaza un utilizator la fiecare noua instanta
      *
-     * @param id         codul unic al utilizatorului
      * @param username   numele de utilizator
      * @param email      adresa de email
      * @param first_name prenumele
      * @param last_name  numele de familie
      */
-    public User(int id, String username, String email,String first_name,String last_name) {
-        super(id);
+    public User(String username, String email,String first_name,String last_name) {
+        //super(id);
+        //! nu face super(id) pentru ca il vom seta cu SetId din Entity
         this.email = email;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -37,6 +37,10 @@ public class User extends Entity{
     @Override
     public String toString(){
         return username + " at: " + email + " Name: " + first_name + " " + last_name;
+    }
+
+    public Integer get_cod(){
+        return id;
     }
 
     /** @return numele de utilizator */
