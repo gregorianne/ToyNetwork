@@ -2,9 +2,12 @@ package Service;
 
 import Domain.Friendship;
 import Domain.User;
-import Repositories.FriendshipRepository;
-import Repositories.UserRepository;
-
+import Repositories.InFile.FriendshipFileRepository;
+import Repositories.InFile.UserFileRepository;
+import Domain.Friendship;
+import Domain.Tuple;
+import Domain.User;
+import Repositories.InFile.AbstractFileRepository;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +20,9 @@ import java.util.List;
  */
 public class NetworkService {
     /** Repository-ul userilor. */
-    private final UserRepository userRepo;
+    private final UserFileRepository userRepo;
     /** Repository-ul prieteniilor. */
-    private final FriendshipRepository friendshipRepo;
+    private final FriendshipFileRepository friendshipRepo;
 
     /** Userii rețelei; poziția în listă este numărul nodului în graf. */
     private List<User> users;
@@ -34,7 +37,7 @@ public class NetworkService {
      * @param userRepo       repository-ul userilor
      * @param friendshipRepo repository-ul prieteniilor
      */
-    public NetworkService(UserRepository userRepo, FriendshipRepository friendshipRepo) {
+    public NetworkService(UserFileRepository userRepo, FriendshipFileRepository friendshipRepo) {
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
@@ -49,15 +52,19 @@ public class NetworkService {
      * fiecare pornire înseamnă o comunitate nouă.
      */
     private void build() {
-        users = new ArrayList<>(userRepo.getAll());
+        users = new ArrayList<>();
+        for (User u : userRepo.get_All()) {
+            users.add(u);
+        }
         int n = users.size();
+
         adj = new boolean[n][n]; //rescriem
         comp = new int[n];
         nrComp = 0;
 
-        for (Friendship f : friendshipRepo.getAll()) {
-            int a = position(f.getId_user1());
-            int b = position(f.getId_user2());
+        for (Friendship f : friendshipRepo.get_All()) {
+            int a = position(f.getIdUser1());
+            int b = position(f.getIdUser2());
             if (a != -1 && b != -1) {
                 adj[a][b] = true;
                 adj[b][a] = true;
@@ -149,9 +156,7 @@ public class NetworkService {
      * Algoritm: DFS cu backtracking. Nodul curent se marchează vizitat,
      * se încearcă toți vecinii nevizitați (lungime = 1 + drumul din vecin),
      * apoi marcajul se anulează, pentru ca nodul să poată apărea
-     * în alte drumuri. Complexitate exponențială în cazul cel mai rău
-     * (problema este NP-dificilă), dar acceptabilă pentru rețele mici.
-     *
+     * în alte drumuri.
      * @param node    nodul de pornire
      * @param visited nodurile aflate pe drumul curent
      * @return lungimea celui mai lung drum care pornește din {@code node}

@@ -1,11 +1,14 @@
 package Repositories;
 
 import Domain.Entity;
+import Domain.User;
 import VE.RepositoryException;
 import VE.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Collections.max;
 
 /**
  * Clasa care gestioneaza operatiile crud fara sa se specifice persistenta lor (in memorie, in fisier, in DB)

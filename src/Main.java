@@ -1,5 +1,5 @@
-import Repositories.FriendshipRepository;
-import Repositories.UserRepository;
+import Repositories.InFile.FriendshipFileRepository;
+import Repositories.InFile.UserFileRepository;
 import Service.FriendshipService;
 import Service.NetworkService;
 import Service.UserService;
@@ -16,8 +16,8 @@ public class Main {
     public static void main(String[] args) {
         // un singur repository per tip, partajat de toate service-urile
         try {
-            UserRepository userRepo = new UserRepository("src/users.csv");
-            FriendshipRepository friendRepo = new FriendshipRepository("src/friendships.csv");
+            UserFileRepository userRepo = new UserFileRepository("src/users.csv");
+            FriendshipFileRepository friendRepo = new FriendshipFileRepository("src/friendships.csv");
 
             UserService userService = new UserService(userRepo, friendRepo, new UserValidator());
             FriendshipService friendshipService = new FriendshipService(friendRepo, userRepo, new FriendshipValidator());

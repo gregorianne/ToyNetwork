@@ -1,7 +1,8 @@
 package Service;
 
 import Domain.Friendship;
-import Repositories.*;
+import Repositories.InFile.FriendshipFileRepository;
+import Repositories.InFile.UserFileRepository;
 import VE.*;
 
 /**
@@ -11,22 +12,17 @@ import VE.*;
  */
 public class FriendshipService {
     /** Repository-ul prieteniilor. */
-    private final FriendshipRepository repo;
+    private final FriendshipFileRepository friendshipRepo;
     /** Repository-ul userilor (aceeași instanță ca în UserService). */
-    private final UserRepository userRepo;
-    /** Strategia de validare a unei prietenii. */
-    private final Validator<Friendship> validator;
+    private final UserFileRepository userRepo;
 
     /**
-     * @param repo      repository-ul prieteniilor
+     * @param friendshipRepo      repository-ul prieteniilor
      * @param userRepo  repository-ul userilor, folosit pentru a verifica existența lor
-     * @param validator strategia de validare a prieteniilor
      */
-    public FriendshipService(FriendshipRepository repo, UserRepository userRepo,
-                             Validator<Friendship> validator) {
-        this.repo = repo;
+    public FriendshipService(FriendshipFileRepository friendshipRepo, UserFileRepository userRepo) {
+        this.friendshipRepo = friendshipRepo;
         this.userRepo = userRepo;
-        this.validator = validator;
     }
 
     /**
@@ -42,13 +38,11 @@ public class FriendshipService {
      *                             nu există sau dacă prietenia există deja
      */
     public void addFriendship(int i1, int i2) {
-        Friendship f = new Friendship(repo.LastKey() + 1, i1, i2);
-        validator.validate(f);
-        if (userRepo.findById(i1) == null || userRepo.findById(i2) == null)
+        if (userRepo.findOne(i1) == null || userRepo.findOne(i2) == null)
             throw new ValidationException("Unul dintre useri nu există");
-        if (repo.preexistent(i1, i2) || repo.preexistent(i2, i1))
+        Friendship f = new Friendship(i1, i2);
+        if (friendshipRepo.save(f) != null)
             throw new ValidationException("Această prietenie există deja");
-        repo.addFriendship(f);
     }
 
     /**
@@ -59,13 +53,7 @@ public class FriendshipService {
      * @throws ValidationException dacă între cei doi useri nu există prietenie
      */
     public void deleteFriendship(int i1, int i2) {
-        for (Friendship f : repo.getAll()) {
-            boolean match = (f.getId_user1() == i1 && f.getId_user2() == i2) || (f.getId_user1() == i2 && f.getId_user2() == i1);
-            if (match) {
-                repo.deleteFriendship(f.getId());
-                return;
-            }
-        }
-        throw new ValidationException("Această prietenie nu există");
+        if (friendshipRepo.delete(Friendship.normalize(i1, i2)) == null)
+            throw new ValidationException("Această prietenie nu există");
     }
 }
