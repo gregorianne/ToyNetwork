@@ -123,11 +123,11 @@ public class UI {
                 if (option.equals("1") || option.equals("2") || option.equals("3") || option.equals("4"))
                     System.out.println("Operație reușită.");
             } catch (ValidationException e) {
-                System.out.println("Eroare: " + e.getMessage());
+                System.out.println("(R) Eroare: " + e.getMessage());
             } catch (NumberFormatException e) {
-                System.out.println("Eroare: trebuie introdus un număr întreg.");
+                System.out.println("(V) Eroare: trebuie introdus un număr întreg.");
             } catch (RuntimeException e) {
-                System.out.println("Eroare neașteptată: " + e.getMessage());
+                System.out.println("(RUNTIME) Eroare neașteptată: " + e.getMessage());
             }
         }
     }

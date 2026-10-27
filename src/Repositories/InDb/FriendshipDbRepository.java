@@ -30,26 +30,26 @@ public class FriendshipDbRepository implements RepoInterface<Tuple<Integer, Inte
 
     @Override
     public Friendship findOne(Tuple<Integer, Integer> id) {
-        throw new UnsupportedOperationException("FriendshipDbRepository.findOne - laboratorul 4");
+        throw new UnsupportedOperationException("FriendshipDbRepository.findOne - laboratorul 6");
     }
 
     @Override
     public Iterable<Friendship> findAll() {
-        throw new UnsupportedOperationException("FriendshipDbRepository.findAll - laboratorul 4");
+        throw new UnsupportedOperationException("FriendshipDbRepository.findAll - laboratorul 6");
     }
 
     @Override
     public Friendship save(Friendship entity) {
-        throw new UnsupportedOperationException("FriendshipDbRepository.save - laboratorul 4");
+        throw new UnsupportedOperationException("FriendshipDbRepository.save - laboratorul 6");
     }
 
     @Override
     public Friendship delete(Tuple<Integer, Integer> id) {
-        throw new UnsupportedOperationException("FriendshipDbRepository.delete - laboratorul 4");
+        throw new UnsupportedOperationException("FriendshipDbRepository.delete - laboratorul 6");
     }
 
     @Override
     public Friendship update(Friendship entity) {
-        throw new UnsupportedOperationException("FriendshipDbRepository.update - laboratorul 4");
+        throw new UnsupportedOperationException("FriendshipDbRepository.update - laboratorul 6");
     }
 }

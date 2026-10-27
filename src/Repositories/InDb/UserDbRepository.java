@@ -29,26 +29,26 @@ public class UserDbRepository implements RepoInterface<Integer, User> {
 
     @Override
     public User findOne(Integer id) {
-        throw new UnsupportedOperationException("UserDbRepository.findOne - laboratorul 4");
+        throw new UnsupportedOperationException("UserDbRepository.findOne - laboratorul 6");
     }
 
     @Override
     public Iterable<User> findAll() {
-        throw new UnsupportedOperationException("UserDbRepository.findAll - laboratorul 4");
+        throw new UnsupportedOperationException("UserDbRepository.findAll - laboratorul 6");
     }
 
     @Override
     public User save(User entity) {
-        throw new UnsupportedOperationException("UserDbRepository.save - laboratorul 4");
+        throw new UnsupportedOperationException("UserDbRepository.save - laboratorul 6");
     }
 
     @Override
     public User delete(Integer id) {
-        throw new UnsupportedOperationException("UserDbRepository.delete - laboratorul 4");
+        throw new UnsupportedOperationException("UserDbRepository.delete - laboratorul 6");
     }
 
     @Override
     public User update(User entity) {
-        throw new UnsupportedOperationException("UserDbRepository.update - laboratorul 4");
+        throw new UnsupportedOperationException("UserDbRepository.update - laboratorul 6");
     }
 }

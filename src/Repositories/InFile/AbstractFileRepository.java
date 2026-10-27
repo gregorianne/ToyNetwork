@@ -36,7 +36,7 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
         loadData();
     }
 
-    //# FUNCTII DE CONVERSIE IN SI DIN STRING
+    //# FUNCTII DE CONVERSIE IN SI DIN STRING ++ABSTRACTE!!!!!++
 
     /**
      * Creaza o entitate de tip elem dintr un sir de caractere, metoda care poate fi implementata explicit in repository specific

@@ -12,19 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Operatii pentru prietenii indiferent de reprezentare: adăugare și ștergere.
- * Verifică regulile care depind de datele existente (useri existenți, prietenii duplicate),
- * iar forma datelor o verifică validatorul.
+ * Operatii pentru prietenii indiferent de reprezentare: adaugare si stergere.
+ * Verifica regulile care depind de datele existente (useri existenti, prietenii duplicate),
+ * iar forma datelor o verifica validatorul.
  */
 public class FriendshipService {
     /** Repository-ul prieteniilor. */
     private final RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo;
-    /** Repository-ul userilor (aceeași instanță ca în UserService). */
+    /** Repository-ul userilor (aceeasi instanta ca în UserService). */
     private final RepoInterface<Integer, User> userRepo;
 
     /**
      * @param friendshipRepo      repository-ul prieteniilor
-     * @param userRepo  repository-ul userilor, folosit pentru a verifica existența lor
+     * @param userRepo  repository-ul userilor, folosit pentru a verifica existenta lor
      */
     public FriendshipService(RepoInterface<Tuple<Integer, Integer>, Friendship> friendshipRepo, RepoInterface<Integer, User> userRepo) {
         this.friendshipRepo = friendshipRepo;
@@ -39,41 +39,41 @@ public class FriendshipService {
     }
 
     /**
-     * Adaugă o prietenie între doi useri existenți.
-     * Noua prietenie primește id-ul (ultimul id folosit + 1).
+     * Adauga o prietenie între doi useri existenti.
+     * Noua prietenie primeste id-ul (ultimul id folosit + 1).
      * Verifica:
-     * corectitudinea formei (validator), existența ambilor useri (se poate fara sa avem userRepo?)
-     * apoi absența unei prietenii deja existente (în oricare sens, 1-2 sau 2-1).
+     * corectitudinea formei (validator), existenta ambilor useri (se poate fara sa avem userRepo?)
+     * apoi absenta unei prietenii deja existente (în oricare sens, 1-2 sau 2-1).
      *
      * @param i1 id-ul primului user
      * @param i2 id-ul celui de-al doilea user
-     * @throws ValidationException dacă id-urile sunt egale, dacă unul dintre useri
-     *                             nu există sau dacă prietenia există deja
+     * @throws ValidationException daca id-urile sunt egale, daca unul dintre useri
+     *                             nu exista sau daca prietenia exista deja
      */
     public void addFriendship(int i1, int i2) {
         if (userRepo.findOne(i1) == null || userRepo.findOne(i2) == null)
-            throw new ValidationException("Unul dintre useri nu există");
+            throw new ValidationException("Unul dintre useri nu exista");
         Friendship f = new Friendship(i1, i2);
         if (friendshipRepo.save(f) != null)
-            throw new ValidationException("Această prietenie există deja");
+            throw new ValidationException("Aceasta prietenie exista deja");
     }
 
     /**
-     * Șterge prietenia dintre doi useri, indiferent de ordine.
+     * sterge prietenia dintre doi useri, indiferent de ordine.
      *
      * @param i1 id-ul primului user
      * @param i2 id-ul celui de-al doilea user
-     * @throws ValidationException dacă între cei doi useri nu există prietenie
+     * @throws ValidationException daca între cei doi useri nu exista prietenie
      */
     public void deleteFriendship(int i1, int i2) {
         if (friendshipRepo.delete(Friendship.normalize(i1, i2)) == null)
-            throw new ValidationException("Această prietenie nu există");
+            throw new ValidationException("Aceasta prietenie nu exista");
     }
 
     /**
-     * Returnează prieteniile într-o formă ușor de citit, cu username-uri și data.
+     * Returneaza prieteniile într-o forma usor de citit, cu username-uri si data.
      *
-     * @return câte un text pe prietenie, de forma "grey07 - booker12 (din 2 Mar la ora 13:36)"
+     * @return cate un text pe prietenie, de forma "grey07 - booker12 (din 2 Mar la ora 13:36)"
      */
     public List<String> getFriendshipsDisplay() {
         List<String> result = new ArrayList<>();

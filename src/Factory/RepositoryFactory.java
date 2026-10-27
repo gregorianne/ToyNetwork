@@ -10,7 +10,6 @@ import Repositories.InFile.FriendshipFileRepository;
 import Repositories.InFile.UserFileRepository;
 import VE.RepositoryException;
 import VE.Validator;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
