@@ -82,17 +82,13 @@ public class RepositoryFactory {
      * @throws RepositoryException daca nu exista tipul specificat
      */
     public RepoInterface<Integer, User> createUserRepository(Validator<User> validator) {
-        switch (tip_persistenta) {
-            case MEMORY:
-                return new InMemoryRepository<Integer, User>(validator);
-            case FILE:
-                return new UserFileRepository(validator, getRequiredProperty("repository.users.file"));
-            case DATABASE:
-                return new UserDbRepository(validator, getRequiredProperty("db.url"),
-                        getRequiredProperty("db.user"), getRequiredProperty("db.password"));
-            default:
-                throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
-        }
+        return switch (tip_persistenta) {
+            case MEMORY -> new InMemoryRepository<Integer, User>(validator);
+            case FILE -> new UserFileRepository(validator, getRequiredProperty("repository.users.file"));
+            case DATABASE -> new UserDbRepository(validator, getRequiredProperty("db.url"),
+                    getRequiredProperty("db.user"), getRequiredProperty("db.password"));
+            default -> throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
+        };
     }
 
     /**
@@ -104,17 +100,13 @@ public class RepositoryFactory {
      */
     public RepoInterface<Tuple<Integer, Integer>, Friendship> createFriendshipRepository(
             Validator<Friendship> validator) {
-        switch (tip_persistenta) {
-            case MEMORY:
-                return new InMemoryRepository<Tuple<Integer, Integer>, Friendship>(validator);
-            case FILE:
-                return new FriendshipFileRepository(validator,
-                        getRequiredProperty("repository.friendships.file"));
-            case DATABASE:
-                return new FriendshipDbRepository(validator, getRequiredProperty("db.url"),
-                        getRequiredProperty("db.user"), getRequiredProperty("db.password"));
-            default:
-                throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
-        }
+        return switch (tip_persistenta) {
+            case MEMORY -> new InMemoryRepository<Tuple<Integer, Integer>, Friendship>(validator);
+            case FILE -> new FriendshipFileRepository(validator,
+                    getRequiredProperty("repository.friendships.file"));
+            case DATABASE -> new FriendshipDbRepository(validator, getRequiredProperty("db.url"),
+                    getRequiredProperty("db.user"), getRequiredProperty("db.password"));
+            default -> throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
+        };
     }
 }
