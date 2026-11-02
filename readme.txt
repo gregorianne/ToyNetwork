@@ -61,3 +61,5 @@ Service-ul primește strategia prin constructor și apelează validator.validate
 - chiar daca se specifica adunarea rezultatelor cu collector, am urmat recomandarea din IDE de a transforma direct in ".toList" simplu unde era posibil.
 - Am inlocuit BufferedWriter cu Path
 - Sortările folosesc Comparator.comparing am implementat in user service
+
+TODO pe sapt 7: Optional
