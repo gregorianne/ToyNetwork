@@ -6,6 +6,7 @@ import VE.RepositoryException;
 import VE.Validator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.max;
@@ -56,8 +57,8 @@ public class InMemoryRepository<ID, Elem extends Entity<ID>>
      * @return valorile entitatilor de la fiecare cheie
      */
     @Override
-    public Iterable<Elem> findAll() {
-        return entities.values();
+    public List<Elem> findAll() {
+        return (List<Elem>) entities.values();
     }
 
     /**

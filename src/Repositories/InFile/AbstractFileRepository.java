@@ -1,16 +1,18 @@
 package Repositories.InFile;
 
-import java.io.IOException;
+import java.io.*;
 
 import Domain.*;
 import Repositories.InMemoryRepository;
 import VE.*;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Repository care memoreaza datele in memorie si in fisier
@@ -44,7 +46,7 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
      * @param line - sir de caractere din fisier
      * @return Entitate cu valorile din line
      */
-    protected abstract Elem String_to_Entity(String line);
+    protected abstract Elem stringToEntity(String line);
 
     /**
      * Converteste o entitate intr un sir de caractere care poate fi scris in fisier
@@ -52,9 +54,15 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
      * @param entity - the entity to be converted
      * @return the line of text that describes the entity
      */
-    protected abstract String Entity_to_String(Elem entity);
+    protected abstract String entityToString(Elem entity);
 
-
+    private void loadLine(int numarLinie, String linie) {
+        try {
+            super.save(stringToEntity(linie));
+        } catch (RepositoryException | ValidationException e) {
+            System.out.println(FILENAME + ": Linia " + numarLinie + " invalida si ignorata: " + e.getMessage());
+        }
+    }
     //# CITIRE / SCRIERE IN FISIER
     /**
      * Citeste toate liniile din fisier si salveaza entitatile valide in memorie
@@ -62,28 +70,25 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
      *
      * @throws RepositoryException daca fisierul nu poate fi citit / exista linii invalide
      * @throws ValidationException daca intr-una din linii sunt date invalide + specifica linia si continua executia
-     * @throws FileNotFoundException daca nu exista fisierul si incepe executia fara date in memorie
      */
     private void loadData() {
-        int linie_curenta = 0;
-        try (BufferedReader cititor = new BufferedReader(new FileReader(FILENAME))) {
-            String line;
-            while ((line = cititor.readLine()) != null) {
-                linie_curenta++;
-                if (line.isBlank())
-                    continue;
-                try {
-                    super.save(String_to_Entity(line));
-                } catch (RepositoryException | ValidationException e) {
-                    System.out.println(FILENAME + ": Linia " + linie_curenta + " invalida si ignorata: " + e.getMessage());
-                }
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Fisierul " + FILENAME + " nu exista sau nu avem acces la el; repository gol.");
-        } catch (IOException e) {
-            //! se respecta impachetarea exceptiilor in Repo Exception
+        Path path = Path.of(FILENAME);
+        if (!Files.exists(path)) {
+            System.out.println("Fisierul " + FILENAME + " nu exista; repository gol.");
+            return;
+        }
+
+        List<String> linii;
+        try (Stream<String> s = Files.lines(path)) {
+            linii = s.collect(Collectors.toList());
+        } catch (IOException | UncheckedIOException e) {
+            //! se respecta impachetarea exceptiilor in RepositoryException
             throw new RepositoryException("Eroare la citirea fisierului " + FILENAME, e);
         }
+
+        IntStream.range(0, linii.size())
+                .filter(i -> !linii.get(i).isBlank())
+                .forEach(i -> loadLine(i + 1, linii.get(i)));
     }
 
     /**
@@ -92,13 +97,18 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
      * @throws RepositoryException daca nu se poate scrie
      */
     private void writeToFile() {
-        try (BufferedWriter scriitor = new BufferedWriter(new FileWriter(FILENAME))) {
-            for (Elem entity : findAll()) { //! se parcurge fiecare entitate
-                scriitor.write(
-                        Entity_to_String(entity) //! conversie inapoi in string dupa specificatiile fiecarei entitati
-                );
-                scriitor.newLine();
-            }
+        Path path = Path.of(FILENAME);
+
+        //# conversia entitatilor in linii, ca pipeline de stream (fara I/O aici)
+        List<String> linii = findAll().stream()
+                .map(this::entityToString)
+                .collect(Collectors.toList());
+
+        try {
+            Path parinte = path.getParent();
+            if (parinte != null)
+                Files.createDirectories(parinte);   // creeaza folderul data/ daca lipseste
+            Files.write(path, linii);               // UTF-8, creeaza/suprascrie fisierul
         } catch (IOException e) {
             throw new RepositoryException("Eroare la scrierea fisierului " + FILENAME, e);
         }

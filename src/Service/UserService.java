@@ -1,14 +1,14 @@
 package Service;
+import Domain.Entity;
 import Domain.Friendship;
 import Domain.Tuple;
 import Domain.User;
-import Repositories.InFile.FriendshipFileRepository;
-import Repositories.InFile.UserFileRepository;
 import Repositories.RepoInterface;
 import VE.*;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * operatii pentru useri: adăugare și ștergere.
@@ -37,10 +37,13 @@ public class UserService {
      * @return noul id
      */
     private int nextId() {
-        int max = 1000;
-        for (User u : userRepo.findAll()) {
-            if (u.getId() > max) max = u.getId();
-        }
+        int max = userRepo
+                .findAll()
+                .stream()
+                .mapToInt(Entity::getId) //!transformă fiecare user în id-ul lui. Stream-ul era de User, devine de Integer: 1001, 1002, 1005. Entity::getId e referința de tipul 3 (metodă de instanță a unui obiect oarecare), echivalentul lui u -> u.getId().
+                .filter(u -> u >= 1000)
+                .max()
+                .orElse(1000);
         return max + 1;
     }
 
@@ -56,18 +59,37 @@ public class UserService {
      * @throws ValidationException dacă username-ul există deja sau dacă datele sunt invalide
      */
     public void addUser(String username, String email, String first_name, String last_name) {
-        for (User existing : userRepo.findAll()) {
-            if (existing.getUsername().equals(username))
-                throw new ValidationException("Username-ul este deja folosit!");
-        }
+        userRepo.findAll()
+                .stream()
+                .filter(existing -> existing.getUsername().equals(username))
+                .forEach(existing -> {
+                    throw new ValidationException("Username-ul este deja folosit!");
+                });
+
         User u = new User(username, email, first_name, last_name);
         //# validarea se face direct in in-memory repository
         u.setId(nextId());
         userRepo.save(u);
     }
 
-    public Iterable<User> getAll() {
+    /**
+     * Propaga findAll si pentru straturile mai jos de repo
+     * @return Lista de utilizatori din repo
+     */
+    public List<User> findAll() {
         return userRepo.findAll();
+    }
+
+    /**
+     * Returneaza utilizatorii ordonati dupa nume
+     *
+     * @return o lista noua cu utilizatori ordonati
+     */
+    public List<User> getAllSortedByName() {
+        return userRepo.findAll().stream()
+                .sorted(Comparator.comparing(User::getLast_name)
+                        .thenComparing(User::getFirst_name))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -80,15 +102,14 @@ public class UserService {
         if (userRepo.findOne(id) == null) {
             throw new ValidationException("Userul căutat nu există!");
         }
-        // întâi le strângem, apoi le ștergem (nu ștergem în timpul iterării)
-        List<Tuple<Integer, Integer>> prietenii_de_sters = new ArrayList<>();
-        for (Friendship f : friendshipRepo.findAll()) {
-            if (f.getIdUser1() == id || f.getIdUser2() == id)
-                prietenii_de_sters.add(f.getId()); // PERECHE AICI, nu doar un id
-        }
-        for (Tuple<Integer, Integer> cheie : prietenii_de_sters) {
-            friendshipRepo.delete(cheie);
-        }
+        //nici nu mai e nevoie de o lista separata in memorie
+
+        friendshipRepo.findAll()
+                .stream()
+                .filter(f -> f.getIdUser1() == id || f.getIdUser2() == id)
+                .map(Entity::getId)
+                .forEach(friendshipRepo::delete);
+
         userRepo.delete(id);
     }
 }

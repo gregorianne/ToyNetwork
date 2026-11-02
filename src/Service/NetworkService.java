@@ -9,6 +9,9 @@ import Repositories.RepoInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Analizează rețeaua de socializare. Rețeaua este un graf neorientat:
@@ -52,31 +55,31 @@ public class NetworkService {
      */
     private void build() {
         users = new ArrayList<>();
-        for (User u : userRepo.findAll()) {
-            users.add(u);
-        }
+        userRepo.findAll().forEach(u -> users.add(u));
+
         int n = users.size();
 
         adj = new boolean[n][n]; //rescriem
         comp = new int[n];
         nrComp = 0;
 
-        for (Friendship f : friendshipRepo.findAll()) {
+        friendshipRepo.findAll().forEach(f -> {
             int a = position(f.getIdUser1());
             int b = position(f.getIdUser2());
             if (a != -1 && b != -1) {
                 adj[a][b] = true;
                 adj[b][a] = true;
             }
-        }
+        });
 
         //componenta comnexa careia apartine -- ruleaza dfs din nodurile nevizitate inca
-        for (int i = 0; i < n; i++) {
-            if (comp[i] == 0) {
-                nrComp++;
-                dfs(i, nrComp);
-            }
-        }
+        //dupa stream, un pic necitibil dar nu ceva de speriat
+        IntStream.range(0, n)
+                .filter(i -> comp[i] == 0)
+                .forEach(i -> {
+                    nrComp++;
+                    dfs(i, nrComp);
+        });
     }
 
     /**
@@ -86,15 +89,15 @@ public class NetworkService {
      * @return poziția în listă sau -1 dacă userul nu există
      */
     private int position(int id) {
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId() == id) return i;
-        }
-        return -1;
+        return IntStream.range(0, users.size())
+                .filter(i -> users.get(i).getId() == id)
+                .findFirst()
+                .orElse(-1);
     }
 
     /**
      * Parcurgere în adâncime (DFS) care marchează toți userii accesibili din {@code node} cu numărul comunității. Un nod este vizitat dacă {@code comp[nod] != 0}.
-     *
+     * Pastrarea lui for pastreaza citirea rapida a logicii
      * @param node   nodul de pornire
      * @param number numărul comunității atribuit nodurilor parcurse
      */
@@ -121,6 +124,9 @@ public class NetworkService {
      * Determină cea mai sociabilă comunitate, adică componenta conexă care conține cel mai lung drum.
      * Pentru fiecare comunitate se pornește căutarea celui mai lung drum din fiecare membru al ei și se reține maximul.
      * Comunitatea al cărei maxim este cel mai mare câștigă. La egalitate rămâne prima găsită.
+     *
+     * Am ales sa pastrez din for-loops din cauza necesitatii de a parcurge si manevra direct indicii unei liste, altfe afecteaza din citire
+     *
      * @return membrii comunității câștigătoare; listă goală dacă nu există useri
      */
     public List<User> mostSociableCommunity() {
@@ -141,12 +147,11 @@ public class NetworkService {
                 bestComp = c;
             }
         }
-
-        List<User> result = new ArrayList<>();
-        for (int i = 0; i < users.size(); i++) {
-            if (comp[i] == bestComp) result.add(users.get(i));
-        }
-        return result;
+        final int target = bestComp;
+        return IntStream.range(0, users.size())
+                .filter(i -> comp[i] == target)
+                .mapToObj( i -> users.get(i)) //! transforma stream de int primitiv in stream de obiecte User
+                .toList();
     }
 
     /**
@@ -156,6 +161,9 @@ public class NetworkService {
      * se încearcă toți vecinii nevizitați (lungime = 1 + drumul din vecin),
      * apoi marcajul se anulează, pentru ca nodul să poată apărea
      * în alte drumuri.
+     *
+     * am pastrat for-loop pentru ca facem backtracking / recursivitate si e mai usor de urmarit.
+     *
      * @param node    nodul de pornire
      * @param visited nodurile aflate pe drumul curent
      * @return lungimea celui mai lung drum care pornește din {@code node}

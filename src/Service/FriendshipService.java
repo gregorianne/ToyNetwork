@@ -3,8 +3,6 @@ package Service;
 import Domain.Friendship;
 import Domain.Tuple;
 import Domain.User;
-import Repositories.InFile.FriendshipFileRepository;
-import Repositories.InFile.UserFileRepository;
 import Repositories.RepoInterface;
 import VE.*;
 
@@ -34,7 +32,7 @@ public class FriendshipService {
     /**
      * @return o lista iterabila cu prieteniile
      */
-    public Iterable<Friendship> getAll() {
+    public List<Friendship> findAll() {
         return friendshipRepo.findAll();
     }
 
@@ -59,7 +57,7 @@ public class FriendshipService {
     }
 
     /**
-     * sterge prietenia dintre doi useri, indiferent de ordine.
+     * Șterge prietenia dintre doi useri, indiferent de ordine.
      *
      * @param i1 id-ul primului user
      * @param i2 id-ul celui de-al doilea user
@@ -77,13 +75,13 @@ public class FriendshipService {
      */
     public List<String> getFriendshipsDisplay() {
         List<String> result = new ArrayList<>();
-        for (Friendship f : friendshipRepo.findAll()) {
+        friendshipRepo.findAll().forEach(f -> {
             User u1 = userRepo.findOne(f.getIdUser1());
             User u2 = userRepo.findOne(f.getIdUser2());
             String name1 = (u1 != null) ? u1.getUsername() : "?" + f.getIdUser1();
             String name2 = (u2 != null) ? u2.getUsername() : "?" + f.getIdUser2();
             result.add(name1 + " - " + name2 + " (din " + f.getFormattedDate() + ")");
-        }
+        });
         return result;
     }
 }

@@ -1,6 +1,5 @@
 package UI;
 
-import Domain.Friendship;
 import Domain.User;
 import Service.FriendshipService;
 import Service.NetworkService;
@@ -79,16 +78,19 @@ public class UI {
         }
     }
 
+    /**
+     * Afiseaza utilizatorii ordonati alfabetic dupa nume si prenume
+     */
     public void showUsers(){
-        for(User u: userService.getAll()){
-            System.out.println(u.toString());
-        }
+//        userService.findAll().forEach(System.out::println);
+        userService.getAllSortedByName().forEach(System.out::println);
     }
 
+    /**
+     * Afiseaza prieteniile
+     */
     public void showFriendships(){
-        for (String line : friendshipService.getFriendshipsDisplay()) {
-            System.out.println(line);
-        }
+        friendshipService.getFriendshipsDisplay().forEach(System.out::println);
     }
 
     /**
@@ -151,8 +153,11 @@ public class UI {
     private void showBiggestCommunity() {
         List<User> community = networkService.mostSociableCommunity();
         System.out.println("Cea mai sociabilă comunitate:");
-        for (User u : community) {
-            System.out.println(" - " + u.getUsername());
-        }
+        //!Referinte la metode
+        community.stream().map(u -> " - " + u.getUsername()).forEach(System.out::println);
+//#In loc de
+//        for (User u : community) {
+//            System.out.println(" - " + u.getUsername());
+//        }
     }
 }

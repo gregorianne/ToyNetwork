@@ -1,5 +1,7 @@
 Concepte folosite - NiceBook
 
+==================== LAB1 & LAB2
+
 SOLID
 
 1. Single Responsibility: o clasă = o responsabilitate.
@@ -31,7 +33,8 @@ Service-ul primește strategia prin constructor și apelează validator.validate
 
 - Arhitectură pe straturi: UI -> Service -> Repository -> Domain. Dependențele merg într-o singură direcție, nu există dependențe circulare. Repository-urile nu se cunosc între ele, iar coordonarea (ex. ștergerea unui user șterge și prieteniile lui) se face în service.
 
-nou adaugat la lab 5:
+==================== LAB3
+
 - Factory: Fabrica de Repo este singura clasa care stie in ce fel se face persistenta datelor si decide bazat pe datele din config.properties. 
            Putem adauga un numar nelimitat de tipuri in enumeratia noastra, fara sa modificam nimic in utilizarea lor in Service/main
 - am mutat validarea in repo:
@@ -43,3 +46,18 @@ nou adaugat la lab 5:
                      Pentru exceptia care arata linia corupta pe care o ignoram la citirea din fisier, a trebuit sa putem continua rularea cu celelalte linii corecte.
                      Repository-ul este singurul loc care stie numarul liniei in momentul citirii, deci este singurul in masura sa dea un mesaj util.
                      Enuntul accepta explicit aceasta varianta ("linia este raportata (numarul liniei si motivul) si ignorata").
+        sugestie: scrierea acestora intr-un fisier LOG care nu se afiseaza si in consola
+
+==================== LAB4:
+=========== sapt 6:
+
+- nu mai sunt for-loops decat la manevrare efectiva de indici folositi in algoritmi elementari pe grafuri / bactracking si recursie in Netwrok Service
+- Am adaugat UserCriteria (functii pt predicatele lui findAll din repo) si am testat scurt in main (inclusiv concatenare cu and)
+- Validator este acum FunctionalInterface, am putut comasa mai multe validatorare cu andThen (default din Validator)
+- Am pastrat AbstractFileRepository, cu UserFile/FriendshipFileRepository care implementeaza doar conversia linie <-> entitate
+    justificare: cod scurt si usor de citit, cu nume si documentatie proprie, tratarea erorilor / exception chaining este mai clar
+                 codul fiecarei subclase este unic (SRP)
+                 codul pentru Function e demonstrat in RepositoryFactory
+- chiar daca se specifica adunarea rezultatelor cu collector, am urmat recomandarea din IDE de a transforma direct in ".toList" simplu unde era posibil.
+- Am inlocuit BufferedWriter cu Path
+- Sortările folosesc Comparator.comparing am implementat in user service

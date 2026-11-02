@@ -95,8 +95,8 @@ public class RepositoryFactory {
                         RepoInterface<Integer, User>>> //#OUPUT
                 fabrica_map = new HashMap<>(); //#TIP de dictionar
 
+        //!!Referinte la metode
         fabrica_map.put(RepositoryType.MEMORY, InMemoryRepository::new); //!v -> new InMemoryRepository<>(v)
-
         fabrica_map.put(RepositoryType.FILE, v -> new UserFileRepository //! {return new [...]} Java stie ca Function are doar apply,
                                                                                         //! deci tot ce e dupa sageata e corpul ei
                 (v,
@@ -152,6 +152,7 @@ public class RepositoryFactory {
                         Validator<Friendship>, //#T
                         RepoInterface<Tuple<Integer,Integer>,Friendship>
                         >> fabrica_map = new HashMap<>(); //#R
+        //!!Referinte la metode
         fabrica_map.put(RepositoryType.MEMORY, InMemoryRepository::new);
         fabrica_map.put(RepositoryType.FILE, v -> new FriendshipFileRepository(v, filename));
         fabrica_map.put(RepositoryType.DATABASE, v-> new FriendshipDbRepository(v, url, user, password));

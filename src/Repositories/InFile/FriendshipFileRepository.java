@@ -38,7 +38,7 @@ public class FriendshipFileRepository extends AbstractFileRepository<Tuple<Integ
      * @throws NumberFormatException if the id is not a number
      */
     @Override
-    protected Friendship String_to_Entity(String line) {
+    protected Friendship stringToEntity(String line) {
         String[] fields = line.split(";", -1);
         if (fields.length != 3)
             throw new RepositoryException("3 campuri asteptate, in schimb gasite: " + fields.length);
@@ -62,7 +62,7 @@ public class FriendshipFileRepository extends AbstractFileRepository<Tuple<Integ
      * @return linia idUser1;idUser2;date, with the date in ISO format
      */
     @Override
-    protected String Entity_to_String(Friendship f) {
+    protected String entityToString(Friendship f) {
         return f.getIdUser1() + ";" + f.getIdUser2() + ";" + f.getDateOfFriendship();
     }
 
@@ -126,7 +126,7 @@ public class FriendshipFileRepository extends AbstractFileRepository<Tuple<Integ
 //        return -1;
 //    }
 //    /**@return colecția prieteniilor     */
-//    public Collection<Friendship> getAll(){
+//    public Collection<Friendship> findAll(){
 //        return friendships.values();
 //    }
 //    /**

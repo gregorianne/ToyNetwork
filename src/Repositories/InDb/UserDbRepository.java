@@ -5,6 +5,8 @@ import Repositories.RepoInterface;
 import VE.ValidationException;
 import VE.Validator;
 
+import java.util.List;
+
 /**
  * Schelet pentru repo din baza de date
  */
@@ -33,7 +35,7 @@ public class UserDbRepository implements RepoInterface<Integer, User> {
     }
 
     @Override
-    public Iterable<User> findAll() {
+    public List<User> findAll() {
         throw new UnsupportedOperationException("UserDbRepository.findAll - laboratorul 6");
     }
 

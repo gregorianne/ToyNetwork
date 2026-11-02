@@ -30,7 +30,7 @@ public interface RepoInterface<ID, Elem extends Entity<ID>> {
      *
      */
     default List<Elem> findAll(Predicate<Elem> myFilter) {
-        return StreamSupport.stream(findAll().spliterator(), false)
+        return findAll().stream()
                 .filter(myFilter)
                 .collect(Collectors.toList());
     }
@@ -47,7 +47,7 @@ public interface RepoInterface<ID, Elem extends Entity<ID>> {
     /**
      @return all entities
      */
-    Iterable<Elem> findAll();
+    List<Elem> findAll();
 
     /**
      * @param entity entity must be not null

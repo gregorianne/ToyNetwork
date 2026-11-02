@@ -34,7 +34,7 @@ public class UserFileRepository extends AbstractFileRepository<Integer, User>{
      * @throws NumberFormatException if the id is not a number
      */
     @Override
-    protected User String_to_Entity(String line) {
+    protected User stringToEntity(String line) {
         String[] fields = line.split(";", -1);
         if (fields.length != 5)
             throw new RepositoryException("5 campuri asteptate, in schimb gasite: " + fields.length);
@@ -55,7 +55,7 @@ public class UserFileRepository extends AbstractFileRepository<Integer, User>{
      * @return the line id;username;email;first_name;last_name
      */
     @Override
-    protected String Entity_to_String(User u) {
+    protected String entityToString(User u) {
         return u.getId() + ";" + u.getUsername() + ";" + u.getEmail() + ";"
                 + u.getFirst_name() + ";" + u.getLast_name();
     }
@@ -133,7 +133,7 @@ public class UserFileRepository extends AbstractFileRepository<Integer, User>{
 //     * Dacă era HashMap, ordinea nu era garantată.
 //     * Tipul Collection nu spune nimic despre ordine, dar obiectul concret din spate o păstrează.
 //     * @return colecția utilizatorilor*/
-//    public Collection<User> getAll(){
+//    public Collection<User> findAll(){
 //        return users.values();
 //    }
 //

@@ -5,6 +5,8 @@ import Domain.Tuple;
 import Repositories.RepoInterface;
 import VE.Validator;
 
+import java.util.List;
+
 /**
  * Schelet pentru repo din baza de date
  */
@@ -34,7 +36,7 @@ public class FriendshipDbRepository implements RepoInterface<Tuple<Integer, Inte
     }
 
     @Override
-    public Iterable<Friendship> findAll() {
+    public List<Friendship> findAll() {
         throw new UnsupportedOperationException("FriendshipDbRepository.findAll - laboratorul 6");
     }
 
