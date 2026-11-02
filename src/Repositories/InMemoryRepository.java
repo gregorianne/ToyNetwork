@@ -5,6 +5,7 @@ import Domain.User;
 import VE.RepositoryException;
 import VE.Validator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class InMemoryRepository<ID, Elem extends Entity<ID>>
      */
     @Override
     public List<Elem> findAll() {
-        return (List<Elem>) entities.values();
+        return new ArrayList<>(entities.values());
     }
 
     /**

@@ -36,7 +36,7 @@ public class User extends Entity<Integer> {
      */
     @Override
     public String toString(){
-        return username + " at: " + email + " Name: " + first_name + " " + last_name;
+        return first_name + " " + last_name + "     " + username + "       " + email;
     }
 
     public Integer get_cod(){

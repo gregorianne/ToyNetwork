@@ -76,10 +76,6 @@ public class RepositoryFactory {
         return value.trim(); //fara spatii goale
     }
 
-    final String url = getRequiredProperty("db.url");
-    final String user = getRequiredProperty("db.user");
-    final String password = getRequiredProperty("db.password");
-    final String filename = getRequiredProperty("repository.users.file");
 
     /**
      * Creeaza un nou repo pt utilizatori, dupa tipul specificat.
@@ -100,7 +96,7 @@ public class RepositoryFactory {
         fabrica_map.put(RepositoryType.FILE, v -> new UserFileRepository //! {return new [...]} Java stie ca Function are doar apply,
                                                                                         //! deci tot ce e dupa sageata e corpul ei
                 (v,
-                filename)
+                getRequiredProperty("repository.users.file"))
         );
 
         //! Function <Validator, Repo>
@@ -116,9 +112,9 @@ public class RepositoryFactory {
 
         fabrica_map.put(RepositoryType.DATABASE, v -> new UserDbRepository
                 (v,
-                url,
-                user,
-                password)
+                getRequiredProperty("db.url"),
+                getRequiredProperty("db.user"),
+                getRequiredProperty("db.password"))
         );
 
         //Validator user INPUT -> RepoInterface<Integer, User> OUTPUT
@@ -154,8 +150,8 @@ public class RepositoryFactory {
                         >> fabrica_map = new HashMap<>(); //#R
         //!!Referinte la metode
         fabrica_map.put(RepositoryType.MEMORY, InMemoryRepository::new);
-        fabrica_map.put(RepositoryType.FILE, v -> new FriendshipFileRepository(v, filename));
-        fabrica_map.put(RepositoryType.DATABASE, v-> new FriendshipDbRepository(v, url, user, password));
+        fabrica_map.put(RepositoryType.FILE, v -> new FriendshipFileRepository(v, getRequiredProperty("repository.friendships.file")));
+        fabrica_map.put(RepositoryType.DATABASE, v-> new FriendshipDbRepository(v, getRequiredProperty("db.url"), getRequiredProperty("db.user"), getRequiredProperty("db.password")));
 
         Function<Validator<Friendship>, RepoInterface<Tuple<Integer, Integer>, Friendship>> reteta = fabrica_map.get(tip_persistenta);
         if(reteta == null)throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
