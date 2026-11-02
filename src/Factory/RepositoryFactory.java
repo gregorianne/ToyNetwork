@@ -12,7 +12,10 @@ import VE.RepositoryException;
 import VE.Validator;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * Simple Factory: singura clasa care stie ce tipuri de repo exista
@@ -73,21 +76,67 @@ public class RepositoryFactory {
         return value.trim(); //fara spatii goale
     }
 
+    final String url = getRequiredProperty("db.url");
+    final String user = getRequiredProperty("db.user");
+    final String password = getRequiredProperty("db.password");
+    final String filename = getRequiredProperty("repository.users.file");
+
     /**
-     * Creeaza un nou repo pt utilizatori, dupa tipul specificat
+     * Creeaza un nou repo pt utilizatori, dupa tipul specificat.
      *
      * @param validator validarea pt utilizatori
      * @return repo pt utilizatori
      * @throws RepositoryException daca nu exista tipul specificat
      */
     public RepoInterface<Integer, User> createUserRepository(Validator<User> validator) {
-        return switch (tip_persistenta) {
-            case MEMORY -> new InMemoryRepository<Integer, User>(validator);
-            case FILE -> new UserFileRepository(validator, getRequiredProperty("repository.users.file"));
-            case DATABASE -> new UserDbRepository(validator, getRequiredProperty("db.url"),
-                    getRequiredProperty("db.user"), getRequiredProperty("db.password"));
-            default -> throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
-        };
+        Map<RepositoryType, //#CHEIE
+                Function< //#VALOARE -- o reteta care primeste un validator de useri și intoarce un repository de useri
+                        Validator<User>, //#INPUT
+                        RepoInterface<Integer, User>>> //#OUPUT
+                fabrica_map = new HashMap<>(); //#TIP de dictionar
+
+        fabrica_map.put(RepositoryType.MEMORY, InMemoryRepository::new); //!v -> new InMemoryRepository<>(v)
+
+        fabrica_map.put(RepositoryType.FILE, v -> new UserFileRepository //! {return new [...]} Java stie ca Function are doar apply,
+                                                                                        //! deci tot ce e dupa sageata e corpul ei
+                (v,
+                filename)
+        );
+
+        //! Function <Validator, Repo>
+        //! fabrica_map adauga o pereche
+        //# (KEY: FILE
+        //? VALUE (fara lambda ar fi scris ca):
+        //        fabrica.put(RepositoryType.FILE, new Function<Validator<User>, RepoInterface<Integer, User>>() { --> CLASA ANONIMA
+        //            @Override
+        //            public RepoInterface<Integer, User> apply(Validator<User> v) { !---> SE APLICA MEREU APPLY dar cu lambda implicit
+        //                return new UserFileRepository(v, filename);
+        //            }
+        //        });
+
+        fabrica_map.put(RepositoryType.DATABASE, v -> new UserDbRepository
+                (v,
+                url,
+                user,
+                password)
+        );
+
+        //Validator user INPUT -> RepoInterface<Integer, User> OUTPUT
+        Function<Validator<User>, RepoInterface<Integer, User>> reteta = fabrica_map.get(tip_persistenta);
+
+        if (reteta == null)
+            throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
+
+        //acuma se aplica reteta cu validatorul transmis
+        return reteta.apply(validator);
+
+//        return switch (tip_persistenta) {
+//            case MEMORY -> new InMemoryRepository<Integer, User>(validator);
+//            case FILE -> new UserFileRepository(validator, getRequiredProperty("repository.users.file"));
+//            case DATABASE -> new UserDbRepository(validator, getRequiredProperty("db.url"),
+//                    getRequiredProperty("db.user"), getRequiredProperty("db.password"));
+//            default -> throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
+//        };
     }
 
     /**
@@ -97,15 +146,27 @@ public class RepositoryFactory {
      * @return repo pt prietenii
      * @throws RepositoryException daca nu exista tipul specificat
      */
-    public RepoInterface<Tuple<Integer, Integer>, Friendship> createFriendshipRepository(
-            Validator<Friendship> validator) {
-        return switch (tip_persistenta) {
-            case MEMORY -> new InMemoryRepository<Tuple<Integer, Integer>, Friendship>(validator);
-            case FILE -> new FriendshipFileRepository(validator,
-                    getRequiredProperty("repository.friendships.file"));
-            case DATABASE -> new FriendshipDbRepository(validator, getRequiredProperty("db.url"),
-                    getRequiredProperty("db.user"), getRequiredProperty("db.password"));
-            default -> throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
-        };
-    }
+    public RepoInterface<Tuple<Integer, Integer>, Friendship> createFriendshipRepository(Validator<Friendship> validator) {
+        Map<RepositoryType,
+                Function<
+                        Validator<Friendship>, //#T
+                        RepoInterface<Tuple<Integer,Integer>,Friendship>
+                        >> fabrica_map = new HashMap<>(); //#R
+        fabrica_map.put(RepositoryType.MEMORY, InMemoryRepository::new);
+        fabrica_map.put(RepositoryType.FILE, v -> new FriendshipFileRepository(v, filename));
+        fabrica_map.put(RepositoryType.DATABASE, v-> new FriendshipDbRepository(v, url, user, password));
+
+        Function<Validator<Friendship>, RepoInterface<Tuple<Integer, Integer>, Friendship>> reteta = fabrica_map.get(tip_persistenta);
+        if(reteta == null)throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
+        return reteta.apply(validator);
+
+        //        return switch (tip_persistenta) {
+        //            case MEMORY -> new InMemoryRepository<Tuple<Integer, Integer>, Friendship>(validator);
+        //            case FILE -> new FriendshipFileRepository(validator,
+        //                    getRequiredProperty("repository.friendships.file"));
+        //            case DATABASE -> new FriendshipDbRepository(validator, getRequiredProperty("db.url"),
+        //                    getRequiredProperty("db.user"), getRequiredProperty("db.password"));
+        //            default -> throw new RepositoryException("Tip de persistenta neimplementat: " + tip_persistenta);
+        //        };
+            }
 }

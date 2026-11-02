@@ -3,6 +3,12 @@ package Repositories;
 import Domain.Entity;
 import VE.ValidationException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 /**
  * Repo interfata pentru operatii CRUD
  *
@@ -10,6 +16,25 @@ import VE.ValidationException;
  * @param <Elem>  - Tipul de elemente salvate in Repo-ul implementat de aceasta interfata
  */
 public interface RepoInterface<ID, Elem extends Entity<ID>> {
+//    default List<Elem> findAll(Predicate<Elem> filter){
+//        List<Elem> rez = new ArrayList<Elem>();
+//        for(Elem e: findAll()){
+//            if(filter.test(e)){
+//                rez.add(e);
+//            }
+//        }
+//        return rez;
+//    }
+
+    /**
+     *
+     */
+    default List<Elem> findAll(Predicate<Elem> myFilter) {
+        return StreamSupport.stream(findAll().spliterator(), false)
+                .filter(myFilter)
+                .collect(Collectors.toList());
+    }
+
     /**
      * @param id -the id of the entity to be returned
      *           id must not be null
