@@ -1,8 +1,8 @@
-Concepte folosite - NiceBook
+### Concepte folosite - NiceBook
 
-==================== LAB1 & LAB2
+# LAB1 & LAB2
 
-SOLID
+## SOLID
 
 1. Single Responsibility: o clasă = o responsabilitate.
 User, Friendship: doar datele unui utilizator / ale unei prietenii.
@@ -22,7 +22,7 @@ Fiecare mostenitor nu are functii pe care nu le foloseste.
 UserService și FriendshipService lucrează cu Validator<T> (interfața), nu cu UserValidator direct. Implementarea concretă e aleasă în Main.
 Service foloseste obiecte generice cu interfata RepoInterface, nu repo-uri specifice (UserFileRepository, etc)
 
-ȘABLOANE
+## ȘABLOANE
 
 - Strategy Pattern: Validator<T> este strategia, UserValidator și FriendshipValidator sunt variantele.
 Service-ul primește strategia prin constructor și apelează validator.validate(...), fără să știe cum se validează. Schimbarea regulilor înseamnă schimbarea unei singure linii în Main.
@@ -33,7 +33,7 @@ Service-ul primește strategia prin constructor și apelează validator.validate
 
 - Arhitectură pe straturi: UI -> Service -> Repository -> Domain. Dependențele merg într-o singură direcție, nu există dependențe circulare. Repository-urile nu se cunosc între ele, iar coordonarea (ex. ștergerea unui user șterge și prieteniile lui) se face în service.
 
-==================== LAB3
+# LAB3
 
 - Factory: Fabrica de Repo este singura clasa care stie in ce fel se face persistenta datelor si decide bazat pe datele din config.properties. 
            Putem adauga un numar nelimitat de tipuri in enumeratia noastra, fara sa modificam nimic in utilizarea lor in Service/main
@@ -48,8 +48,8 @@ Service-ul primește strategia prin constructor și apelează validator.validate
                      Enuntul accepta explicit aceasta varianta ("linia este raportata (numarul liniei si motivul) si ignorata").
         sugestie: scrierea acestora intr-un fisier LOG care nu se afiseaza si in consola
 
-==================== LAB4:
-=========== sapt 6:
+# LAB4:
+## sapt 6:
 
 - nu mai sunt for-loops decat la manevrare efectiva de indici folositi in algoritmi elementari pe grafuri / bactracking si recursie in Netwrok Service
 - Am adaugat UserCriteria (functii pt predicatele lui findAll din repo) si am testat scurt in main (inclusiv concatenare cu and)
@@ -62,4 +62,4 @@ Service-ul primește strategia prin constructor și apelează validator.validate
 - Am inlocuit BufferedWriter cu Path
 - Sortările folosesc Comparator.comparing am implementat in user service
 
-TODO pe sapt 7: Optional
+### TODO pe sapt 7: Optional
