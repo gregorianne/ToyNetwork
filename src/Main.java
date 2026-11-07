@@ -57,16 +57,18 @@ public class Main {
             FriendshipService friendshipService = new FriendshipService(friendshipRepo, userRepo);
             NetworkService networkService = new NetworkService(userRepo, friendshipRepo);
 
+            System.out.println("useri incarcati: " + userRepo.findAll().size());
+
             //! joaca de la LAB 4 aici - predicate
             //!" se combină cu and, or, negate, Predicate.not. "
             userRepo.findAll(
-                    usernameStartsWith("j").and(emailProviderIs("yahoo.com"))
+                    usernameStartsWith("c").and(emailProviderIs("yahoo.com"))
             ).forEach(System.out::println);
 
             //! Referinta la metoda
             List<User> yahooisti = userRepo.findAll(UserCriteria::emailYahoo);
 
-            new UI(userService, friendshipService, networkService).run();
+            //new UI(userService, friendshipService, networkService).run();
 
         } catch (RepositoryException e){
             System.out.println("Repo Eroare! " + e);
