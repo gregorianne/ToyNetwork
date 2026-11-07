@@ -34,7 +34,7 @@ public final class UserCriteria {
      * @return predicat care filtreaza dupa provider
      */
     public static Predicate<User> emailProviderIs(String provider){
-        return user -> user.getEmail().endsWith("@" + provider + ".com");
+        return user -> user.getEmail().endsWith("@" + provider);
     }
 
     /**
