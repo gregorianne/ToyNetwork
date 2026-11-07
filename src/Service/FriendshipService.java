@@ -8,6 +8,8 @@ import VE.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Operatii pentru prietenii indiferent de reprezentare: adaugare si stergere.
@@ -37,6 +39,17 @@ public class FriendshipService {
     }
 
     /**
+     * Verifica daca exista sau nu un user care se vrea folosut pt o operatie.
+     * @param id numeric al Utilizatorului
+     * @return un user
+     * @throws ValidationException daca in Optionalul creat se afla o valoare nula
+     */
+    private User findUserOrThrow(int id) {
+        return Optional.ofNullable(userRepo.findOne(id))
+                .orElseThrow(() -> new ValidationException("Userul " + id + " nu exista"));
+    }
+
+    /**
      * Adauga o prietenie între doi useri existenti.
      * Noua prietenie primeste id-ul (ultimul id folosit + 1).
      * Verifica:
@@ -49,10 +62,11 @@ public class FriendshipService {
      *                             nu exista sau daca prietenia exista deja
      */
     public void addFriendship(int i1, int i2) {
-        if (userRepo.findOne(i1) == null || userRepo.findOne(i2) == null)
-            throw new ValidationException("Unul dintre useri nu exista");
-        Friendship f = new Friendship(i1, i2);
-        if (friendshipRepo.save(f) != null)
+        var u1 = findUserOrThrow(i1);
+        var u2 = findUserOrThrow(i2);
+        Friendship f = new Friendship(u1.getId(),
+                                        u2.getId());
+        if (friendshipRepo.save(f) != null) //null = succes
             throw new ValidationException("Aceasta prietenie exista deja");
     }
 
@@ -64,24 +78,25 @@ public class FriendshipService {
      * @throws ValidationException daca între cei doi useri nu exista prietenie
      */
     public void deleteFriendship(int i1, int i2) {
-        if (friendshipRepo.delete(Friendship.normalize(i1, i2)) == null)
+        var u1 = findUserOrThrow(i1);
+        var u2 = findUserOrThrow(i2);
+        if (friendshipRepo.delete(Friendship.normalize(u1.getId(),
+                                                        u2.getId())) == null)
             throw new ValidationException("Aceasta prietenie nu exista");
     }
 
     /**
      * Returneaza prieteniile într-o forma usor de citit, cu username-uri si data.
      *
-     * @return cate un text pe prietenie, de forma "grey07 - booker12 (din 2 Mar la ora 13:36)"
+     * @return cate un text pe prietenie, de forma "grey07 - booker12 (din 2 Mar la ora 13:36)”
      */
     public List<String> getFriendshipsDisplay() {
-        List<String> result = new ArrayList<>();
-        friendshipRepo.findAll().forEach(f -> {
-            User u1 = userRepo.findOne(f.getIdUser1());
-            User u2 = userRepo.findOne(f.getIdUser2());
-            String name1 = (u1 != null) ? u1.getUsername() : "?" + f.getIdUser1();
-            String name2 = (u2 != null) ? u2.getUsername() : "?" + f.getIdUser2();
-            result.add(name1 + " - " + name2 + " (din " + f.getFormattedDate() + ")");
-        });
-        return result;
+        return friendshipRepo.findAll().stream()
+                .map(f->{
+                    var u1 = findUserOrThrow(f.getIdUser1());
+                    var u2 = findUserOrThrow(f.getIdUser2());
+                    return u1.getUsername() + " - " + u2.getUsername() + "(din " + f.getFormattedDate() + ")";
+                })
+                .collect(Collectors.toList());
     }
 }

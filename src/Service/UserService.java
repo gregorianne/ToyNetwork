@@ -8,6 +8,7 @@ import VE.*;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +81,11 @@ public class UserService {
         return userRepo.findAll();
     }
 
+    private void findUserOrThrow(int id) {
+        Optional.ofNullable(userRepo.findOne(id))
+                .orElseThrow(() -> new ValidationException("Userul " + id + " nu exista"));
+    }
+
     /**
      * Returneaza utilizatorii ordonati dupa nume
      *
@@ -99,9 +105,7 @@ public class UserService {
      * @throws ValidationException dacă nu există niciun user cu acest id
      */
     public void deleteUser(int id) {
-        if (userRepo.findOne(id) == null) {
-            throw new ValidationException("Userul căutat nu există!");
-        }
+        findUserOrThrow(id);
         //nici nu mai e nevoie de o lista separata in memorie
 
         friendshipRepo.findAll()

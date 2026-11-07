@@ -80,7 +80,7 @@ public abstract class AbstractFileRepository<ID, Elem extends Entity<ID>>
 
         List<String> linii;
         try (Stream<String> s = Files.lines(path)) {
-            linii = s.collect(Collectors.toList());
+            linii = s.toList();
         } catch (IOException | UncheckedIOException e) {
             //! se respecta impachetarea exceptiilor in RepositoryException
             throw new RepositoryException("Eroare la citirea fisierului " + FILENAME, e);

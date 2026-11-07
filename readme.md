@@ -65,5 +65,8 @@ Service foloseste obiecte generice cu interfata RepoInterface, nu repo-uri speci
 - chiar daca se specifica adunarea rezultatelor cu collector, am urmat recomandarea din IDE de a transforma direct in ".toList" simplu unde era posibil.<br/>
 - Am inlocuit BufferedWriter cu **Path**<br/>
 - Sortările folosesc **Comparator.comparing** - implementat in user service
-
-### TODO pe sapt 7: Optional
+- Am scurtat mult functiile din Network Service folosind stream-uri
+- OPTIONAL:
+  - Repository ramane cu null (findOne, save, update, delete). Optional se foloseste in service: Optional.ofNullable(repo.findOne(id)), plus rezultatele (pt operatii din viitor, neimplementate inca) max/min/findFirst, extrase cu orElseThrow/orElse/ifPresent.
+  - Optional e un tip de retur, daca vrem sau nu ca cevav sa fie null putem decide la nivelul de logica de bussiness (diverse aplicatii ar avea diverse logici), deci reflectam asta doar in service pentru simplitatea structurii repo
+  - Modificarea interfetei ar fi atins toate repository-urile, scheletele DB si Javadoc-ul, pentru un castig mic.
